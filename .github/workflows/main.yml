@@ -1,0 +1,45 @@
+name: Blank out specific file in history
+
+on:
+  workflow_dispatch:
+    inputs:
+      file_path:
+        description: "Path of the file to blank (e.g. dockermanager/app.js)"
+        required: true
+      commit_hash:
+        description: "Commit hash where the file should be blanked"
+        required: true
+
+jobs:
+  blank-file:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install git-filter-repo
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git-filter-repo
+
+      - name: Write blob-callback script
+        run: |
+          echo "def callback(blob, metadata):" > filter.py
+          echo "    if metadata.path == b\"${{ github.event.inputs.file_path }}\" and metadata.commit.hex == b\"${{ github.event.inputs.commit_hash }}\":" >> filter.py
+          echo "        blob.data = b\"\"" >> filter.py
+
+      - name: Run git filter-repo
+        run: |
+          git filter-repo --force --blob-callback "$(cat filter.py)"
+
+      - name: Re-add GitHub remote using PAT
+        run: |
+          git remote add origin https://x-access-token:${{ secrets.PAT_FORCE_PUSH }}@github.com/${{ github.repository }}.git
+
+      - name: Force push (DANGEROUS!)
+        run: |
+          git push origin --force --all
+          git push origin --force --tags
