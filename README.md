@@ -15,10 +15,6 @@
 
 - ✅ List, start, stop, restart, and remove containers
 - 🔍 View container status, uptime, and exposed ports
-- 📊 Display container resource usage (CPU, memory, etc.)
-- ⚙️ Customise actions and visibility settings
-- 🧩 Optional integrations with system tools and dashboards
-- 🌐 Web-based or CLI-driven interfaces (depending on implementation)
 
 ## 🛠️ Installation
 
