@@ -1,4 +1,4 @@
-name: Delete specific file from a single commit
+name: Delete file from all history
 
 on:
   workflow_dispatch:
@@ -6,35 +6,25 @@ on:
       file_path:
         description: "Path of the file to delete (e.g. dockermanager/app.js)"
         required: true
-      commit_hash:
-        description: "Commit hash where the file should be deleted"
-        required: true
 
 jobs:
-  delete-file:
+  delete-file-history:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout full history
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # required for full history rewrite
+          fetch-depth: 0
 
       - name: Install git-filter-repo
         run: |
           sudo apt-get update
           sudo apt-get install -y git-filter-repo
 
-      - name: Write Python filter to delete specific file in target commit
+      - name: Delete file from all history
         run: |
-          echo "def callback(blob, metadata):" > filter.py
-          echo "    if metadata.path == b\"${{ github.event.inputs.file_path }}\" and metadata.commit.hex == b\"${{ github.event.inputs.commit_hash }}\":" >> filter.py
-          echo "        return None" >> filter.py
-          echo "    return blob" >> filter.py
-
-      - name: Run git filter-repo (no --path!)
-        run: |
-          git filter-repo --force --blob-callback "$(cat filter.py)"
+          git filter-repo --force --invert-paths --path "${{ github.event.inputs.file_path }}"
 
       - name: Re-add GitHub remote using PAT
         run: |
