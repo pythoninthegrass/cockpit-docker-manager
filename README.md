@@ -1,5 +1,5 @@
 
-# 🐳 Cockpit DockerManager
+# 🐳 Cockpit Docker Manager
 
 **DockerManager** is a lightweight and intuitive utility designed to help you manage your Docker containers via a simplified interface or automation-friendly tooling. Whether you're a system administrator, developer, or DevOps engineer, DockerManager makes container visibility and management easier and more accessible.
 
