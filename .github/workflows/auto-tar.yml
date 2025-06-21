@@ -5,7 +5,7 @@ on:
   workflow_dispatch:  # manually triggered from the GitHub UI
   push:
     paths:
-      - 'dockermanager/**'  # run only when portainer directory changes
+      - 'dockermanager/**'  # run only when dockermanager directory changes
 
 jobs:
   tar-job:
@@ -15,9 +15,15 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Create tar of portainer contents
+      - name: Create tar of dockermanager contents
         run: |
           tar -cvf dockermanager.tar -C dockermanager .
 
       - name: List files to confirm
         run: ls -lh
+
+      - name: Upload tar as workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dockermanager-tar
+          path: dockermanager.tar
