@@ -1,0 +1,41 @@
+name: Build DEB Package
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Enter the version number (e.g., 1.0-1)'
+        required: true
+        default: '1.0-1'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Prepare packaging structure
+        run: |
+          mkdir -p debian/usr/share/cockpit/dockermanager
+          cp -r dockermanager/* debian/usr/share/cockpit/dockermanager/
+          chmod -R 755 debian/DEBIAN
+
+      - name: Inject version into control file
+        run: |
+          sed -i "s/^Version: .*/Version: ${{ github.event.inputs.version }}/" debian/DEBIAN/control
+
+      - name: Build DEB
+        run: |
+          dpkg-deb --build debian
+          mv debian.deb dockermanager_${{ github.event.inputs.version }}.deb
+          cp dockermanager_${{ github.event.inputs.version }}.deb .
+
+      - name: Commit .deb to repo root
+        uses: EndBug/add-and-commit@v9
+        with:
+          author_name: GitHub Actions
+          author_email: actions@github.com
+          message: "Add dockermanager ${{ github.event.inputs.version }}.deb"
+          add: "dockermanager_${{ github.event.inputs.version }}.deb"
