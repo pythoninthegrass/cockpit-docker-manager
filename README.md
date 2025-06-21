@@ -20,4 +20,4 @@
 
 ubuntu:
 <br>
-<code>curl -fsSL https://raw.githubusercontent.com/chrisjbawden/cockpit-docker-manager/refs/heads/main/quick-deploy.sh | sudo sh</code>
+<code>curl -L -o dockermanager.deb https://github.com/chrisjbawden/cockpit-docker-manager/raw/refs/heads/main/dockermanager_1.0-1.deb && sudo dpkg -i dockermanager.deb</code>
