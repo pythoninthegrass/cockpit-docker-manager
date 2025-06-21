@@ -1,4 +1,4 @@
-name: Delete a specific file in one commit
+name: Delete specific file from a single commit
 
 on:
   workflow_dispatch:
@@ -7,7 +7,7 @@ on:
         description: "Path of the file to delete (e.g. dockermanager/app.js)"
         required: true
       commit_hash:
-        description: "Commit hash where the file should be removed"
+        description: "Commit hash where the file should be deleted"
         required: true
 
 jobs:
@@ -18,20 +18,21 @@ jobs:
       - name: Checkout full history
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 0  # required for full history rewrite
 
       - name: Install git-filter-repo
         run: |
           sudo apt-get update
           sudo apt-get install -y git-filter-repo
 
-      - name: Write blob-callback script
+      - name: Write Python filter to delete specific file in target commit
         run: |
           echo "def callback(blob, metadata):" > filter.py
           echo "    if metadata.path == b\"${{ github.event.inputs.file_path }}\" and metadata.commit.hex == b\"${{ github.event.inputs.commit_hash }}\":" >> filter.py
           echo "        return None" >> filter.py
+          echo "    return blob" >> filter.py
 
-      - name: Run git filter-repo
+      - name: Run git filter-repo (no --path!)
         run: |
           git filter-repo --force --blob-callback "$(cat filter.py)"
 
@@ -39,7 +40,7 @@ jobs:
         run: |
           git remote add origin https://x-access-token:${{ secrets.PAT_FORCE_PUSH }}@github.com/${{ github.repository }}.git
 
-      - name: Force push (DANGEROUS!)
+      - name: Force push rewritten history (DANGEROUS!)
         run: |
           git push origin --force --all
           git push origin --force --tags
