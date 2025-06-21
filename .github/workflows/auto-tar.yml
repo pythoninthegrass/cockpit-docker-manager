@@ -1,3 +1,12 @@
+# .github/workflows/tar-portainer.yml
+name: Auto .tar dockermanager directory
+
+on:
+  workflow_dispatch:  # allow manual run from GitHub UI
+  push:
+    paths:
+      - 'dockermanager/**'  # only run when dockermanager files change
+
 jobs:
   tar-job:
     runs-on: ubuntu-latest
@@ -5,17 +14,22 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Create tar of dockermanager contents
+      - name: Create .tar of dockermanager directory
         run: |
           tar -cvf dockermanager.tar -C dockermanager .
+
+      - name: Show contents for confirmation
+        run: ls -lh
 
       - name: Commit and push .tar to repo root
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add dockermanager.tar
-          git commit -m "Add dockermanager.tar [auto-generated]" || echo "No changes to commit"
+          git commit -m "Auto-generated dockermanager.tar [CI]" || echo "No changes to commit"
           git push origin HEAD
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
