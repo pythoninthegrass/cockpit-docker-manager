@@ -29,8 +29,7 @@ jobs:
       - name: Build DEB
         run: |
           dpkg-deb --build debian
-          mv debian.deb dockermanager_${{ github.event.inputs.version }}.deb
-          cp dockermanager_${{ github.event.inputs.version }}.deb .
+          cp debian.deb dockermanager_${{ github.event.inputs.version }}.deb
 
       - name: Commit .deb to repo root
         uses: EndBug/add-and-commit@v9
