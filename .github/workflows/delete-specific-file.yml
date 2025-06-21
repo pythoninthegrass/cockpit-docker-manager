@@ -1,17 +1,17 @@
-name: Blank out specific file in history
+name: Delete a specific file in one commit
 
 on:
   workflow_dispatch:
     inputs:
       file_path:
-        description: "Path of the file to blank (e.g. dockermanager/app.js)"
+        description: "Path of the file to delete (e.g. dockermanager/app.js)"
         required: true
       commit_hash:
-        description: "Commit hash where the file should be blanked"
+        description: "Commit hash where the file should be removed"
         required: true
 
 jobs:
-  blank-file:
+  delete-file:
     runs-on: ubuntu-latest
 
     steps:
@@ -29,7 +29,7 @@ jobs:
         run: |
           echo "def callback(blob, metadata):" > filter.py
           echo "    if metadata.path == b\"${{ github.event.inputs.file_path }}\" and metadata.commit.hex == b\"${{ github.event.inputs.commit_hash }}\":" >> filter.py
-          echo "        blob.data = b\"\"" >> filter.py
+          echo "        return None" >> filter.py
 
       - name: Run git filter-repo
         run: |
