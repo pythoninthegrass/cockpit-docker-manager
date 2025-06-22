@@ -13,7 +13,7 @@
 
 ## 🚀 Features
 
-- ✅ List, start, stop, restart, and remove containers
+- ✅ List, start, stop, and restart containers
 - 🔍 View container status, uptime, and exposed ports
 
 ## 🛠️ Installation
