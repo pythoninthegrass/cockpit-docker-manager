@@ -86,7 +86,8 @@ document.addEventListener("DOMContentLoaded", () => {
         containerList.innerHTML = cards.join("");
       })
       .catch(() => {
-        showError(`? Cannot access Docker. Make sure this user is in the <code>docker</code> group and Docker is running.`);
+        showError(`? Unable to access Docker!<br>
+        Please ensure Docker is installed and that this user belongs to the <code>docker</code> group.`);
       })
       .finally(() => {
         onDone?.();
@@ -104,7 +105,7 @@ document.addEventListener("DOMContentLoaded", () => {
         setInterval(() => loadContainers(), 5 * 60 * 1000); // Refresh every 5 minutes
       })
       .catch(() => {
-        showError(`? Docker is not installed or not running.<br>
+        showError(`? Unable to access Docker!<br>
         Please ensure Docker is installed and that this user belongs to the <code>docker</code> group.`);
       })
       .finally(() => {
