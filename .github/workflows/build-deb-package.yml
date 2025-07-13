@@ -18,10 +18,13 @@ jobs:
 
     steps:
     # --------------------------------------------------------------
-    # 1. Check out source
+    # 1. Check out source with full history and tags so we can move tags
     # --------------------------------------------------------------
     - name: Checkout repository
       uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        persist-credentials: true
 
     # --------------------------------------------------------------
     # 2. Lay out packaging tree in $BUILD_DIR
@@ -66,12 +69,39 @@ jobs:
         dpkg-deb --build --root-owner-group "$BUILD_DIR" \
                  "${PKG_NAME}_${VERSION}_all.deb"
 
-        # Version-specific and rolling filenames
         cp "${PKG_NAME}_${VERSION}_all.deb" "${PKG_NAME}-${VERSION}.deb"
         cp "${PKG_NAME}_${VERSION}_all.deb" "${PKG_NAME}.deb"
 
     # --------------------------------------------------------------
-    # 5a. Create/Update versioned Release and upload versioned .deb
+    # 5a. Move (delete/re-create) the version tag to current commit
+    # --------------------------------------------------------------
+    - name: Move version tag to current commit
+      env:
+        VERSION: ${{ github.event.inputs.version }}
+      run: |
+        git config user.name "github-actions"
+        git config user.email "github-actions@github.com"
+        git fetch origin
+        git tag -d "v$VERSION" || true
+        git push origin :refs/tags/v$VERSION || true
+        git tag "v$VERSION"
+        git push origin "v$VERSION" --force
+
+    # --------------------------------------------------------------
+    # 5b. Move (delete/re-create) the 'latest' tag to current commit
+    # --------------------------------------------------------------
+    - name: Move 'latest' tag to current commit
+      run: |
+        git config user.name "github-actions"
+        git config user.email "github-actions@github.com"
+        git fetch origin
+        git tag -d latest || true
+        git push origin :refs/tags/latest || true
+        git tag latest
+        git push origin latest --force
+
+    # --------------------------------------------------------------
+    # 6a. Create/Update versioned Release and upload versioned .deb
     # --------------------------------------------------------------
     - name: Create/Update versioned Release
       uses: softprops/action-gh-release@v2
@@ -88,7 +118,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     # --------------------------------------------------------------
-    # 5b. Create/Update 'latest' Release and upload latest .deb
+    # 6b. Create/Update 'latest' Release and upload latest .deb
     # --------------------------------------------------------------
     - name: Create/Update latest Release (rolling download)
       uses: softprops/action-gh-release@v2
