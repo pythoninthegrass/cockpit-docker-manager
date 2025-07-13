@@ -36,18 +36,19 @@ jobs:
     - name: Generate control file
       env:
         VERSION: ${{ github.event.inputs.version }}
-  run: |
-    cat > "${PKG_NAME}/DEBIAN/control" <<CONTROL
-    Package: ${PKG_NAME}
-    Version: ${VERSION}
-    Section: admin
-    Priority: optional
-    Architecture: all
-    Maintainer: Chris Bawden <chrisjbawden@outlook.com>
-    Description: Cockpit plugin - Docker Manager UI
-CONTROL
-    chmod 0755 "${PKG_NAME}/DEBIAN"
-    chmod 0644 "${PKG_NAME}/DEBIAN/control"
+      run: |
+        printf '%s\n' \
+          "Package: ${PKG_NAME}" \
+          "Version: ${VERSION}" \
+          "Section: admin" \
+          "Priority: optional" \
+          "Architecture: all" \
+          "Maintainer: Chris Bawden <chrisjbawden@outlook.com>" \
+          "Description: Cockpit plugin – Docker Manager UI" \
+          > "${PKG_NAME}/DEBIAN/control"
+
+        chmod 0755 "${PKG_NAME}/DEBIAN"
+        chmod 0644 "${PKG_NAME}/DEBIAN/control"
 
     # ------------------------------------------------------------------
     # 4. Build the Debian package
