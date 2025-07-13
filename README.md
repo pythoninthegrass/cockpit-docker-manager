@@ -20,4 +20,4 @@
 
 ubuntu:
 <br>
-<code>curl -L -o dockermanager.deb https://github.com/chrisjbawden/cockpit-dockermanager/raw/refs/heads/main/dockermanager_1.0-1.deb && sudo dpkg -i dockermanager.deb</code>
+<code>curl -L -o dockermanager.deb https://github.com/chrisjbawden/cockpit-dockermanager/releases/download/latest/dockermanager.deb && sudo dpkg -i dockermanager.deb</code>
