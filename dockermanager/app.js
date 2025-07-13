@@ -91,6 +91,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <br>
         ie; sudo usermod -aG docker $USER<br>
         Note: Remeber to log out and back in after`);
+        })
       .finally(() => {
         onDone?.();
       });
