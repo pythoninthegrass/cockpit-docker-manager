@@ -105,8 +105,10 @@ document.addEventListener("DOMContentLoaded", () => {
         setInterval(() => loadContainers(), 5 * 60 * 1000); // Refresh every 5 minutes
       })
       .catch(() => {
-        showError(`? Unable to access Docker!<br>
-        Please ensure Docker is installed and that this user belongs to the <code>docker</code> group.`);
+        showError(`ERROR: Unable to access Docker!<br>
+        Please ensure Docker is installed and that this user belongs to the <code>docker</code> group. <br>
+        <br>
+        ie; sudo usermod -aG docker $USER`);
       })
       .finally(() => {
         hideLoading();
