@@ -4,37 +4,76 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Enter the version number (e.g., 1.0-1)'
+        description: "Package version (e.g. 1.0-1)"
         required: true
-        default: '1.0-1'
+        default: "1.0.1"
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      PKG_NAME: dockermanager            # change once, used everywhere
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+    # ------------------------------------------------------------------
+    # 1. Checkout source
+    # ------------------------------------------------------------------
+    - name: Checkout repository
+      uses: actions/checkout@v4
 
-      - name: Prepare packaging structure
-        run: |
-          mkdir -p debian/usr/share/cockpit/dockermanager
-          cp -r dockermanager/* debian/usr/share/cockpit/dockermanager/
-          chmod -R 755 debian/DEBIAN
+    # ------------------------------------------------------------------
+    # 2. Lay out packaging tree
+    # ------------------------------------------------------------------
+    - name: Prepare packaging structure
+      run: |
+        mkdir -p "${PKG_NAME}/DEBIAN"
+        mkdir -p "${PKG_NAME}/usr/share/cockpit/${PKG_NAME}"
+        cp -r dockermanager/* "${PKG_NAME}/usr/share/cockpit/${PKG_NAME}/"
 
-      - name: Inject version into control file
-        run: |
-          sed -i "s/^Version: .*/Version: ${{ github.event.inputs.version }}/" debian/DEBIAN/control
+    # ------------------------------------------------------------------
+    # 3. Create control file with version embedded
+    # ------------------------------------------------------------------
+    - name: Generate control file
+      env:
+        VERSION: ${{ github.event.inputs.version }}
+      run: |
+        cat > "${PKG_NAME}/DEBIAN/control" <<CONTROL
+Package: ${PKG_NAME}
+Version: ${VERSION}
+Section: admin
+Priority: optional
+Architecture: all
+Maintainer: Chris Bawden <chrisjbawden@outlook.com>
+Description: Cockpit plugin – Docker Manager UI
+CONTROL
+        chmod 0755 "${PKG_NAME}/DEBIAN"
+        chmod 0644 "${PKG_NAME}/DEBIAN/control"
 
-      - name: Build DEB
-        run: |
-          dpkg-deb --build debian
-          cp debian.deb dockermanager_${{ github.event.inputs.version }}.deb
+    # ------------------------------------------------------------------
+    # 4. Build the Debian package
+    # ------------------------------------------------------------------
+    - name: Build DEB
+      env:
+        VERSION: ${{ github.event.inputs.version }}
+      run: |
+        # Build with canonical name (<name>_<ver>_all.deb)
+        dpkg-deb --build --root-owner-group "${PKG_NAME}" \
+                 "${PKG_NAME}_${VERSION}_all.deb"
 
-      - name: Commit .deb to repo root
-        uses: EndBug/add-and-commit@v9
-        with:
-          author_name: GitHub Actions
-          author_email: actions@github.com
-          message: "Add dockermanager ${{ github.event.inputs.version }}.deb"
-          add: "dockermanager_${{ github.event.inputs.version }}.deb"
+        # Copy/rename into the two requested filenames
+        cp "${PKG_NAME}_${VERSION}_all.deb" "${PKG_NAME}-${VERSION}.deb"
+        cp "${PKG_NAME}_${VERSION}_all.deb" "${PKG_NAME}.deb"
+
+    # ------------------------------------------------------------------
+    # 5. Commit both artefacts
+    # ------------------------------------------------------------------
+    - name: Commit .deb packages to repo root
+      uses: EndBug/add-and-commit@v9
+      with:
+        author_name: GitHub Actions
+        author_email: actions@github.com
+        message: |
+          Add ${PKG_NAME}-${{ github.event.inputs.version }}.deb and rolling ${PKG_NAME}.deb
+        add: |
+          ${PKG_NAME}-${{ github.event.inputs.version }}.deb
+          ${PKG_NAME}.deb
