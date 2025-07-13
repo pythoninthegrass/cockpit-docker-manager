@@ -71,16 +71,35 @@ jobs:
         cp "${PKG_NAME}_${VERSION}_all.deb" "${PKG_NAME}.deb"
 
     # --------------------------------------------------------------
-    # 5. Commit the artefacts back to the repo root
+    # 5a. Create/Update versioned Release and upload versioned .deb
     # --------------------------------------------------------------
-    - name: Commit .deb packages to repo root
-      uses: EndBug/add-and-commit@v9
+    - name: Create/Update versioned Release
+      uses: softprops/action-gh-release@v2
       with:
-        author_name: GitHub Actions
-        author_email: actions@github.com
-        message: >
-          Add ${{ env.PKG_NAME }}-${{ github.event.inputs.version }}.deb
-          and rolling ${{ env.PKG_NAME }}.deb
-        add: |
-          ${{ env.PKG_NAME }}-${{ github.event.inputs.version }}.deb
-          ${{ env.PKG_NAME }}.deb
+        tag_name: v${{ github.event.inputs.version }}
+        name: "DockerManager v${{ github.event.inputs.version }}"
+        body: |
+          Automated release for DockerManager v${{ github.event.inputs.version }}.
+        draft: false
+        prerelease: false
+        files: |
+          dockermanager-${{ github.event.inputs.version }}.deb
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    # --------------------------------------------------------------
+    # 5b. Create/Update 'latest' Release and upload latest .deb
+    # --------------------------------------------------------------
+    - name: Create/Update latest Release (rolling download)
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: latest
+        name: "DockerManager Latest"
+        body: |
+          Rolling release. This always contains the most recent dockermanager.deb.
+        draft: false
+        prerelease: false
+        files: |
+          dockermanager.deb
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
