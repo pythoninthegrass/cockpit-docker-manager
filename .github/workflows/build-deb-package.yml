@@ -11,70 +11,76 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     env:
-      PKG_NAME: dockermanager            # change once, used everywhere
+      PKG_NAME: dockermanager      # package name used inside control file
+      BUILD_DIR: build             # temporary folder for packaging tree
 
     steps:
-    # ------------------------------------------------------------------
-    # 1. Checkout source
-    # ------------------------------------------------------------------
+    # --------------------------------------------------------------
+    # 1. Check out source
+    # --------------------------------------------------------------
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    # ------------------------------------------------------------------
-    # 2. Lay out packaging tree
-    # ------------------------------------------------------------------
+    # --------------------------------------------------------------
+    # 2. Lay out packaging tree in $BUILD_DIR
+    # --------------------------------------------------------------
     - name: Prepare packaging structure
       run: |
-        mkdir -p "${PKG_NAME}/DEBIAN"
-        mkdir -p "${PKG_NAME}/usr/share/cockpit/${PKG_NAME}"
-        cp -r dockermanager/* "${PKG_NAME}/usr/share/cockpit/${PKG_NAME}/"
+        rm -rf "$BUILD_DIR"                    # ensure a clean slate
+        mkdir -p "$BUILD_DIR/DEBIAN"
+        mkdir -p "$BUILD_DIR/usr/share/cockpit/$PKG_NAME"
 
-    # ------------------------------------------------------------------
-    # 3. Create control file with version embedded
-    # ------------------------------------------------------------------
+        # Copy project files into the payload (recursively, incl. dot-files)
+        cp -rT "$PKG_NAME" \
+              "$BUILD_DIR/usr/share/cockpit/$PKG_NAME"
+
+    # --------------------------------------------------------------
+    # 3. Generate control file with version input
+    # --------------------------------------------------------------
     - name: Generate control file
       env:
         VERSION: ${{ github.event.inputs.version }}
       run: |
         printf '%s\n' \
-          "Package: ${PKG_NAME}" \
-          "Version: ${VERSION}" \
+          "Package: $PKG_NAME" \
+          "Version: $VERSION" \
           "Section: admin" \
           "Priority: optional" \
           "Architecture: all" \
           "Maintainer: Chris Bawden <chrisjbawden@outlook.com>" \
           "Description: Cockpit plugin – Docker Manager UI" \
-          > "${PKG_NAME}/DEBIAN/control"
+          > "$BUILD_DIR/DEBIAN/control"
 
-        chmod 0755 "${PKG_NAME}/DEBIAN"
-        chmod 0644 "${PKG_NAME}/DEBIAN/control"
+        chmod 0755 "$BUILD_DIR/DEBIAN"
+        chmod 0644 "$BUILD_DIR/DEBIAN/control"
 
-    # ------------------------------------------------------------------
-    # 4. Build the Debian package
-    # ------------------------------------------------------------------
+    # --------------------------------------------------------------
+    # 4. Build the package and create the two artefacts
+    # --------------------------------------------------------------
     - name: Build DEB
       env:
         VERSION: ${{ github.event.inputs.version }}
       run: |
-        # Build with canonical name (<name>_<ver>_all.deb)
-        dpkg-deb --build --root-owner-group "${PKG_NAME}" \
+        dpkg-deb --build --root-owner-group "$BUILD_DIR" \
                  "${PKG_NAME}_${VERSION}_all.deb"
 
-        # Copy/rename into the two requested filenames
+        # Version-specific and rolling filenames
         cp "${PKG_NAME}_${VERSION}_all.deb" "${PKG_NAME}-${VERSION}.deb"
         cp "${PKG_NAME}_${VERSION}_all.deb" "${PKG_NAME}.deb"
 
-    # ------------------------------------------------------------------
-    # 5. Commit both artefacts
-    # ------------------------------------------------------------------
+    # --------------------------------------------------------------
+    # 5. Commit the artefacts back to the repo root (optional)
+    # --------------------------------------------------------------
     - name: Commit .deb packages to repo root
       uses: EndBug/add-and-commit@v9
       with:
         author_name: GitHub Actions
         author_email: actions@github.com
-        message: |
-          Add ${PKG_NAME}-${{ github.event.inputs.version }}.deb and rolling ${PKG_NAME}.deb
+        message: >
+          Add ${PKG_NAME}-${{ github.event.inputs.version }}.deb
+          and rolling ${PKG_NAME}.deb
         add: |
           ${PKG_NAME}-${{ github.event.inputs.version }}.deb
           ${PKG_NAME}.deb
