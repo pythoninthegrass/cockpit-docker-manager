@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      PKG_NAME: dockermanager      # package name used inside control file
+      PKG_NAME: dockermanager      # package name inside control file
       BUILD_DIR: build             # temporary folder for packaging tree
 
     steps:
@@ -71,7 +71,7 @@ jobs:
         cp "${PKG_NAME}_${VERSION}_all.deb" "${PKG_NAME}.deb"
 
     # --------------------------------------------------------------
-    # 5. Commit the artefacts back to the repo root (optional)
+    # 5. Commit the artefacts back to the repo root
     # --------------------------------------------------------------
     - name: Commit .deb packages to repo root
       uses: EndBug/add-and-commit@v9
@@ -79,8 +79,8 @@ jobs:
         author_name: GitHub Actions
         author_email: actions@github.com
         message: >
-          Add ${PKG_NAME}-${{ github.event.inputs.version }}.deb
-          and rolling ${PKG_NAME}.deb
+          Add ${{ env.PKG_NAME }}-${{ github.event.inputs.version }}.deb
+          and rolling ${{ env.PKG_NAME }}.deb
         add: |
-          ${PKG_NAME}-${{ github.event.inputs.version }}.deb
-          ${PKG_NAME}.deb
+          ${{ env.PKG_NAME }}-${{ github.event.inputs.version }}.deb
+          ${{ env.PKG_NAME }}.deb
