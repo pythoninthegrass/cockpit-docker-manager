@@ -86,9 +86,11 @@ document.addEventListener("DOMContentLoaded", () => {
         containerList.innerHTML = cards.join("");
       })
       .catch(() => {
-        showError(`? Unable to access Docker!<br>
-        Please ensure Docker is installed and that this user belongs to the <code>docker</code> group.`);
-      })
+        showError(`ERROR: Unable to access Docker!<br>
+        Please ensure Docker is installed and that this user belongs to the <code>docker</code> group. <br>
+        <br>
+        ie; sudo usermod -aG docker $USER<br>
+        Note: Remeber to log out and back in after`);
       .finally(() => {
         onDone?.();
       });
@@ -108,7 +110,8 @@ document.addEventListener("DOMContentLoaded", () => {
         showError(`ERROR: Unable to access Docker!<br>
         Please ensure Docker is installed and that this user belongs to the <code>docker</code> group. <br>
         <br>
-        ie; sudo usermod -aG docker $USER`);
+        ie; sudo usermod -aG docker $USER<br>
+        Note: Remeber to log out and back in after`);
       })
       .finally(() => {
         hideLoading();
