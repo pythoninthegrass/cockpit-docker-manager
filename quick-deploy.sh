@@ -1,51 +1,45 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Suppress command output
-exec &> /dev/null
+# exec &> /dev/null
+
+ORG_NAME=${ORG_NAME:-"chrisjbawden"}
+REPO_NAME=${REPO_NAME:-"cockpit-docker-manager"}
+FILE_NAME=${FILE_NAME:-"dockermanager.tar"}
+TARGET_DIR=${TARGET_DIR:-"/usr/share/cockpit/dockermanager"}
+TAR_URL="https://github.com/${ORG_NAME}/${REPO_NAME}/raw/refs/heads/main/${FILE_NAME}"
 
 # Check if the OS is Ubuntu
 if [ "$(lsb_release -si)" != "Ubuntu" ]; then
-  echo ""
-  echo "This script was created for Ubuntu"
-  echo ""
+	echo "This script was created for Ubuntu"
 
-  read -p "This script is intended for Ubuntu - Do you want to continue? (y/n): " confirm
-  if [[ ! "$confirm" =~ ^[Yy]$ ]]; then
-    echo ""
-    echo "Script aborted."
-    sleep 5
-    exit 1
-  fi
+	read -rp "This script is intended for Ubuntu - Do you want to continue? (y/n): " confirm
+	if [[ ! "$confirm" =~ ^[Yy]$ ]]; then
+		echo "Script aborted."
+		exit 1
+	fi
 fi
-
-# Define the install target
-target_directory="/usr/share/cockpit/dockermanager"
 
 # Handle upgrade logic
 if [ "$1" = "upgrade" ]; then
-  if [ -d "$target_directory" ]; then
-    rm -rf "$target_directory" || { echo "Failed to delete existing directory."; sleep 5; exit 1; }
-  fi
+	if [ -d "$TARGET_DIR" ]; then
+		rm -rf "$TARGET_DIR" || echo "Failed to delete existing directory."; exit 1
+	fi
 fi
 
 # Backup existing directory if it exists
-if [ -d "$target_directory" ]; then
-  mv "$target_directory" "${target_directory}.old" || { echo "Failed to rename existing directory."; sleep 5; exit 1; }
+if [ -d "$TARGET_DIR" ]; then
+	mv "$TARGET_DIR" "${TARGET_DIR}.bak" || echo "Failed to rename existing directory."; exit 1
 fi
 
 # Download .tar file from GitHub
-tar_url="https://github.com/chrisjbawden/cockpit-docker-manager/raw/refs/heads/main/dockermanager.tar"
-wget "$tar_url" -O dockermanager.tar
+wget "$TAR_URL" -O "$FILE_NAME"
 
 # Create target directory and extract contents into it
-mkdir -p "$target_directory"
-tar -xf dockermanager.tar -C "$target_directory"
+mkdir -p "$TARGET_DIR"
+tar -xf "$FILE_NAME" -C "$TARGET_DIR"
 
 # Clean up tar file
-rm dockermanager.tar
+rm "$FILE_NAME"
 
-echo ""
-echo ""
-echo "Docker Manager deployed successfully to $target_directory"
-echo ""
-echo ""
+echo -e "\nDocker Manager deployed successfully to $TARGET_DIR"
