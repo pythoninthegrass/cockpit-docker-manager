@@ -138,3 +138,58 @@ header {
   0%   { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+
+/* floating round button */
+#terminal-toggle-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 24%;
+  width: 48px;
+  height: 48px;
+  border: none;
+  border-radius: 50%;
+  background: #0e86d4;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 2001;
+  box-shadow: 0 2px 6px rgba(0,0,0,.3);
+  opacity: 0.5;
+  transition: opacity 0.2s;
+  user-select: none;
+}
+#terminal-toggle-btn:hover {
+  opacity: 1.0;
+}
+#terminal-toggle-btn svg {
+  width: 24px;
+  height: 24px;
+}
+
+/* slide-up / resizable panel */
+#terminal-panel{
+position:fixed;left:0;bottom:0;width:100%;height:30vh;
+background:#000;border-top:2px solid #0e86d4;z-index:2000;
+transform:translateY(100%);                /* hidden initially   */
+transition:transform .3s ease-in-out,height .1s linear;
+display:flex;flex-direction:column;
+}
+#terminal-panel.open{transform:translateY(0);}  /* visible */
+
+/* draggable bar */
+#terminal-resizer{height:6px;background:#0e86d4;cursor:ns-resize;}
+
+/* iframe */
+#terminal-iframe{flex:1 1 auto;width:100%;border:none;}
+
+/* body padding when panel is open (value set via JS) */
+body.with-terminal-padding{
+padding-bottom:var(--terminal-panel-height,0);
+}
+
+#version-stamp{
+  text-align: center;
+  padding-top: 10px;
+}
