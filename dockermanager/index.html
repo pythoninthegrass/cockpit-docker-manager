@@ -46,6 +46,7 @@
     left: 0;
     width: 100%;
     background: #0e86d4;
+    opacity: 0.5;
     color: #000;
     padding: 10px;
     text-align: center;
@@ -59,7 +60,36 @@
   <button id="refresh-button" class="refresh-button">Refresh</button>
   <div id="container-list">Loading...</div>
 
-  <script src="../base1/cockpit.js"></script>
-  <script src="app.js"></script>
+
+<!-- =Cockpit Terminal Section -->
+
+
+<!-- button -->
+<button id="terminal-toggle-btn" aria-label="Toggle terminal">
+  <svg viewBox="0 0 24 24" fill="currentColor">
+    <path d="M3 4h18a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V6
+             a2 2 0 0 1 2-2zm0 2v12h18V6H3zm2.5 2.5L8 12 5.5 15.5
+             7 17l4-5-4-5-1.5 1.5zM13 17h5v-2h-5v2z"/>
+  </svg>
+</button>
+
+<!-- panel -->
+<div id="terminal-panel">
+  <div id="terminal-resizer"></div>
+  <!-- ✱✱✱  UPDATE src BELOW to your Cockpit terminal URL/path  ✱✱✱ -->
+  <iframe id="terminal-iframe"
+          src="/cockpit/@localhost/system/terminal.html"></iframe>
+</div>
+
+<div id="version-stamp">
+  <p>Verion 1.0.3</p>
+</div>
+
+
+<!--  End Cockpit Terminal Section -->
+
+
+<script src="../base1/cockpit.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
