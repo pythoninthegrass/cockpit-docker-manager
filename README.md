@@ -35,4 +35,4 @@ curl -L -o dockermanager.deb https://github.com/chrisjbawden/cockpit-dockermanag
 ### Changelog
 
 #### v1.0.3
-* In window temrinal functionality implemented
+* In window terminal functionality implemented
