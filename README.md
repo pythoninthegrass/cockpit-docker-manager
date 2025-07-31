@@ -19,7 +19,7 @@
 
 - ✅ List, start, stop, and restart containers
 - 🔍 View container status, uptime, and exposed ports
-- ![fa-terminal] In window terminal 
+- 💻 In window terminal 
 
 ## 🛠️ Installation
 
