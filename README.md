@@ -19,6 +19,7 @@
 
 - ✅ List, start, stop, and restart containers
 - 🔍 View container status, uptime, and exposed ports
+- >_ In window terminal 
 
 ## 🛠️ Installation
 
