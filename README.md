@@ -34,6 +34,10 @@ curl -sSL https://raw.githubusercontent.com/chrisjbawden/cockpit-dockermanager/m
 
 ### Changelog
 
+#### v1.0.4
+
+- Added Real time log, CPU/memory monitoring
+
 #### v1.0.3
 
 - In window terminal functionality implemented
